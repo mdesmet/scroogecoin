@@ -3,7 +3,7 @@ import java.util.List;
 
 public class TxHandler {
 
-    private UTXOPool utxoPool;
+    protected UTXOPool utxoPool;
 
     /**
      * Creates a public ledger whose current UTXOPool (collection of unspent transaction outputs) is
@@ -25,7 +25,7 @@ public class TxHandler {
      */
     public boolean isValidTx(Transaction tx) {
         List<UTXO> claimedUTXOs = new ArrayList<>();
-        int sumInputs = 0;
+        double sumInputs = 0;
         for(int i = 0; i < tx.numInputs(); i++) {
             Transaction.Input input = tx.getInput(i);
             UTXO utxo = new UTXO(input.prevTxHash, input.outputIndex);
@@ -40,14 +40,14 @@ public class TxHandler {
             }
 
             // (3) no UTXO is claimed multiple times by {@code tx}
-            if(!claimedUTXOs.contains(utxo)) {
+            if(claimedUTXOs.contains(utxo)) {
                 return false;
             }
             claimedUTXOs.add(utxo);
             sumInputs += utxoPool.getTxOutput(utxo).value;
         }
 
-        int sumOutputs = 0;
+        double sumOutputs = 0;
         for(int i = 0; i < tx.numOutputs(); i++) {
             // (4) all of {@code tx}s output values are non-negative
             Transaction.Output output = tx.getOutput(i);
